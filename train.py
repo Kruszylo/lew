@@ -10,6 +10,7 @@ from tensorflow.keras.layers import Dense, Activation, Flatten, Conv2D, MaxPooli
 from tensorflow.keras.utils import to_categorical
 from keras import backend as K
 from sklearn.metrics import confusion_matrix
+from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
 from skimage import img_as_ubyte
 from tqdm import tqdm
@@ -88,8 +89,8 @@ def main():
 
     VALID_DATADIR = '../processed_focused_dataset/valid_classes'
     VALID_LABELS = []
-    X_test = []
-    y_test = []
+    X_valid = []
+    y_valid = []
     IMG_WIDTH = 48
     IMG_HEIGHT = 80
     for cl in os.listdir(VALID_DATADIR):
@@ -109,14 +110,14 @@ def main():
                     try:
                         gray_img = cv2.imread(os.path.join(side_path, img))
                         resized_img = cv2.resize(gray_img, (IMG_WIDTH, IMG_HEIGHT)) 
-                        X_test.append(resized_img)
-                        y_test.append(unknown_bin_vec)
+                        X_valid.append(resized_img)
+                        y_valid.append(unknown_bin_vec)
                     except Exception as e:
                         pass
-    y_test = np.asanyarray(y_test)
-    X_test = np.asanyarray(X_test).reshape(-1, *X_test[0].shape)
+    y_valid = np.asanyarray(y_valid)
+    X_valid = np.asanyarray(X_valid).reshape(-1, *X_valid[0].shape)
     # image normalization
-    X_test = X_test/255.0
+    X_valid = X_valid/255.0
 
     # Create the model
     model = Sequential()
@@ -138,27 +139,28 @@ def main():
                 optimizer='adam', metrics=['accuracy', f1_m])
 
     X_train, y_train = shuffle(X_train, y_train, random_state=42)
+    X_t, X_test, y_t, y_test = train_test_split(X_train, y_train, stratify=y_train, test_size=0.33, random_state=42)
 
-    model.fit(X_train, y_train, batch_size=64, epochs=20, validation_data=(X_test, y_test))
+    model.fit(X_t, y_t, batch_size=64, epochs=20, validation_data=(X_test, y_test))
 
     # evaluate the model
     # INFO: keras has problems with displaying metrics during fit run, so we evaluate 
     # model on each subset to get real scores.
     scores  = model.evaluate(X_train, y_train)
-    print('----- Validation scores: -----')
+    print('----- All training data scores: -----')
     print('Loss: %.3f' % scores[0])
     print('Accuracy: %.3f' % scores[1])
     print('F1: %.3f' % scores[2])
 
-    scores  = model.evaluate(X_test, y_test)
+    scores  = model.evaluate(X_valid, y_valid)
     print('----- Validation scores: -----')
     print('Loss: %.3f' % scores[0])
     print('Accuracy: %.3f' % scores[1])
     print('F1: %.3f' % scores[2])
 
     # save confidence matricies on train/val subsets
-    y_pred = model.predict(X_test)
-    con_mat = confusion_matrix(y_test.argmax(axis=1), y_pred.argmax(axis=1))
+    y_pred = model.predict(X_valid)
+    con_mat = confusion_matrix(y_valid.argmax(axis=1), y_pred.argmax(axis=1))
     np.savetxt('test_conf_mat.txt', con_mat, delimiter=',', fmt='%i')
 
     pred_y = model.predict(X_train)

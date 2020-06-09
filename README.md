@@ -88,7 +88,14 @@ Trained model will be saved in `.h5` file.
 
 ### Predict
 
-Use `predict.py` for getting model predictions. There is a checkpoint `lewMobileNet.h5` of model trained 20 epochs with batch size 32, the checkpoint stats are:
+Use `predict.py` for getting model predictions. There is a checkpoint `lew_cnn.h5` of model trained on hold out split with test size `0.33`, 20 epochs with batch size 32, the checkpoint stats are:
+
+||train|validation|
+|---|---|---|
+|acc|0.845|0.905|
+|f1|0.844|0.907|
+
+There is also production checkpoint `lew_cnn_all.h5` of the model trained on **all** training samples, 20 epochs with batch size 32, the checkpoint stats are:
 
 ||train|validation|
 |---|---|---|
