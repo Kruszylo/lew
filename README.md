@@ -3,7 +3,35 @@
 ## Intro
 
 Labeled Ears in the Wild (Inspired by LFW (Labeled Face in the Wild), a public benchmark for face verification). 
-Ears validation problem was succesfuly solved with `CNN` model.
+Ears validation problem was succesfuly solved with `CNN` model:
+
+```bash
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+conv2d (Conv2D)              (None, 78, 46, 32)        896       
+_________________________________________________________________
+max_pooling2d (MaxPooling2D) (None, 39, 23, 32)        0         
+_________________________________________________________________
+conv2d_1 (Conv2D)            (None, 37, 21, 64)        18496     
+_________________________________________________________________
+max_pooling2d_1 (MaxPooling2 (None, 18, 10, 64)        0         
+_________________________________________________________________
+conv2d_2 (Conv2D)            (None, 16, 8, 64)         36928     
+_________________________________________________________________
+max_pooling2d_2 (MaxPooling2 (None, 8, 4, 64)          0         
+_________________________________________________________________
+flatten (Flatten)            (None, 2048)              0         
+_________________________________________________________________
+dense (Dense)                (None, 64)                131136    
+_________________________________________________________________
+dense_1 (Dense)              (None, 51)                3315      
+=================================================================
+Total params: 190,771
+Trainable params: 190,771
+Non-trainable params: 0
+_________________________________________________________________
+```
 
 ## Setup
 
@@ -64,8 +92,8 @@ Use `predict.py` for getting model predictions. There is a checkpoint `lewMobile
 
 ||train|validation|
 |---|---|---|
-|acc|0.917|0.73|
-|f1|0.9|0.73|
+|acc|0.949|0.928|
+|f1|0.949|0.929|
 
 ### Prepare dataset
 
